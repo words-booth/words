@@ -16,19 +16,30 @@ document.addEventListener("touchstart", (event) => {
   // Swipes starting at the screen edges belong to the browser's own back/forward gestures.
   const edge = 24;
   swipe = event.touches.length === 1 && touch.clientX > edge && touch.clientX < window.innerWidth - edge
-    ? { x: touch.clientX, y: touch.clientY, time: Date.now() }
+    ? { x: touch.clientX, y: touch.clientY, lastX: touch.clientX, lastY: touch.clientY, time: Date.now() }
     : null;
 }, { passive: true });
 
-document.addEventListener("touchend", (event) => {
+document.addEventListener("touchmove", (event) => {
   if (!swipe) return;
-  const touch = event.changedTouches[0];
-  const dx = touch.clientX - swipe.x;
-  const dy = touch.clientY - swipe.y;
+  if (event.touches.length !== 1) { swipe = null; return; }
+  swipe.lastX = event.touches[0].clientX;
+  swipe.lastY = event.touches[0].clientY;
+}, { passive: true });
+
+// iOS Safari often ends a sideways swipe with touchcancel instead of touchend.
+function finish(event) {
+  if (!swipe) return;
+  const touch = event.changedTouches && event.changedTouches[0];
+  const x = touch ? touch.clientX : swipe.lastX;
+  const y = touch ? touch.clientY : swipe.lastY;
+  const dx = (x || swipe.lastX) - swipe.x;
+  const dy = (y || swipe.lastY) - swipe.y;
   const quick = Date.now() - swipe.time < 800;
   swipe = null;
   if (!quick || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
   follow(dx < 0 ? "a.next" : "a.prev");
-}, { passive: true });
+}
 
-document.addEventListener("touchcancel", () => { swipe = null; }, { passive: true });
+document.addEventListener("touchend", finish, { passive: true });
+document.addEventListener("touchcancel", finish, { passive: true });
