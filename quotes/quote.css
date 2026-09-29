@@ -32,6 +32,11 @@ blockquote p {
   font-size: clamp(21px, 3.2vw, 27px);
   line-height: 1.6;
   letter-spacing: -0.005em;
+  text-wrap: pretty;
+}
+@media (max-width: 700px) {
+  blockquote br { display: none; }
+  blockquote p { font-size: 20px; line-height: 1.55; }
 }
 figcaption {
   margin-top: 44px;
