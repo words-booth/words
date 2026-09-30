@@ -36,6 +36,7 @@ blockquote p {
 }
 @media (max-width: 700px) {
   blockquote br { display: none; }
+  blockquote p.lines br { display: inline; }
   blockquote p { font-size: 20px; line-height: 1.55; }
 }
 figcaption {

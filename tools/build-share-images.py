@@ -1,8 +1,11 @@
 """Render link-preview images and Open Graph tags for every quote and poem.
 
-Run after adding or editing a quote or poem:
+Run after adding or editing a quote or poem. With no arguments every page is rebuilt;
+otherwise only the named pages are:
 
     python3 tools/build-share-images.py
+    python3 tools/build-share-images.py quotes/hardly-one-knows-me.html
+    python3 tools/build-share-images.py hardly-one-knows-me false-treasure
 
 Requires Google Chrome. Writes JPEGs to share/ and updates the <head> of each page.
 """
@@ -11,6 +14,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
 SITE = "https://words.booth.us.com"
@@ -101,42 +105,65 @@ def tags_for(title, description, rel_page, rel_image):
     ]
 
 
+def build_quote(tmp, name):
+    path = os.path.join(ROOT, "quotes", name)
+    page = open(path, encoding="utf-8").read()
+    body = re.search(r"<blockquote>\s*<p[^>]*>(.*?)</p>", page, re.S).group(1)
+    author = text(re.search(r'<span class="author">(.*?)</span>', page, re.S).group(1))
+    quote_html = "<br>".join(l.strip() for l in body.split("<br>"))
+    card = CARD.format(quote=quote_html, author=html.escape(author))
+    image = f"share/quotes/{name[:-5]}.jpg"
+    screenshot(tmp, card, os.path.join(ROOT, image))
+    title = text(re.search(r"<title>(.*?)</title>", page, re.S).group(1))
+    page = set_meta(page, tags_for(title, text(body), f"quotes/{name}", image))
+    open(path, "w", encoding="utf-8").write(page)
+    print("quote", name)
+
+
+def build_poem(tmp, name):
+    path = os.path.join(ROOT, "poems", name)
+    page = open(path, encoding="utf-8").read()
+    image = f"share/poems/{name[:-5]}.jpg"
+    frame = f'<iframe class="frame" scrolling="no" src="file://{html.escape(path)}"></iframe>'
+    screenshot(tmp, frame, os.path.join(ROOT, image))
+    title = text(re.search(r"<title>(.*?)</title>", page, re.S).group(1))
+    description = re.search(r'<meta name="description" content="([^"]*)"', page).group(1)
+    page = set_meta(page, tags_for(title, html.unescape(description), f"poems/{name}", image))
+    open(path, "w", encoding="utf-8").write(page)
+    print("poem", name)
+
+
+BUILDERS = {"quotes": build_quote, "poems": build_poem}
+
+
+def pages(kind):
+    return sorted(n for n in os.listdir(os.path.join(ROOT, kind)) if n.endswith(".html"))
+
+
+def find(arg):
+    """Resolve 'quotes/x.html', 'x.html' or 'x' to (kind, file name)."""
+    name = os.path.basename(arg)
+    if not name.endswith(".html"):
+        name += ".html"
+    parent = os.path.basename(os.path.dirname(os.path.abspath(arg))) if "/" in arg else None
+    kinds = [parent] if parent in BUILDERS else list(BUILDERS)
+    for kind in kinds:
+        if os.path.exists(os.path.join(ROOT, kind, name)):
+            return kind, name
+    sys.exit(f"No quote or poem page found for {arg!r}")
+
+
 def main():
+    targets = [find(arg) for arg in sys.argv[1:]]
     tmp = tempfile.mkdtemp()
     try:
-        shutil.rmtree(os.path.join(ROOT, "share"), ignore_errors=True)
-        for kind in ("quotes", "poems"):
+        if not targets:
+            shutil.rmtree(os.path.join(ROOT, "share"), ignore_errors=True)
+            targets = [(kind, name) for kind in BUILDERS for name in pages(kind)]
+        for kind in BUILDERS:
             os.makedirs(os.path.join(ROOT, "share", kind), exist_ok=True)
-
-        for name in sorted(os.listdir(os.path.join(ROOT, "quotes"))):
-            if not name.endswith(".html"):
-                continue
-            path = os.path.join(ROOT, "quotes", name)
-            page = open(path, encoding="utf-8").read()
-            body = re.search(r"<blockquote>\s*<p>(.*?)</p>", page, re.S).group(1)
-            author = text(re.search(r'<span class="author">(.*?)</span>', page, re.S).group(1))
-            quote_html = "<br>".join(l.strip() for l in body.split("<br>"))
-            card = CARD.format(quote=quote_html, author=html.escape(author))
-            image = f"share/quotes/{name[:-5]}.jpg"
-            screenshot(tmp, card, os.path.join(ROOT, image))
-            title = text(re.search(r"<title>(.*?)</title>", page, re.S).group(1))
-            page = set_meta(page, tags_for(title, text(body), f"quotes/{name}", image))
-            open(path, "w", encoding="utf-8").write(page)
-            print("quote", name)
-
-        for name in sorted(os.listdir(os.path.join(ROOT, "poems"))):
-            if not name.endswith(".html"):
-                continue
-            path = os.path.join(ROOT, "poems", name)
-            page = open(path, encoding="utf-8").read()
-            image = f"share/poems/{name[:-5]}.jpg"
-            frame = f'<iframe class="frame" scrolling="no" src="file://{html.escape(path)}"></iframe>'
-            screenshot(tmp, frame, os.path.join(ROOT, image))
-            title = text(re.search(r"<title>(.*?)</title>", page, re.S).group(1))
-            description = re.search(r'<meta name="description" content="([^"]*)"', page).group(1)
-            page = set_meta(page, tags_for(title, html.unescape(description), f"poems/{name}", image))
-            open(path, "w", encoding="utf-8").write(page)
-            print("poem", name)
+        for kind, name in targets:
+            BUILDERS[kind](tmp, name)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
