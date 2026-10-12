@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#dce8ea">
+  <meta name="description" content="The Abyss — a poem on suffering, conformity and the bliss found within.">
+  <title>The Abyss</title>
+  <!-- share -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Words">
+  <meta property="og:title" content="The Abyss">
+  <meta property="og:description" content="The Abyss — a poem on suffering, conformity and the bliss found within.">
+  <meta property="og:url" content="https://words.booth.us.com/poems/the-abyss.html">
+  <meta property="og:image" content="https://words.booth.us.com/share/poems/the-abyss.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The Abyss — a poem on suffering, conformity and the bliss found within.">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- /share -->
+  <script src="../nav.js" defer></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --surface: #dce8ea;
+      --shallows: #b7cfd5;
+      --mid: #5f8795;
+      --deep: #22414f;
+      --abyss: #0b1a23;
+      --ink: #1d3038;
+      --foam: #eef5f6;
+      --light: #d9e6ea;
+      --glow: #f3e9c9;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--abyss); }
+    body {
+      margin: 0; color: var(--ink);
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .sea {
+      background: linear-gradient(to bottom,
+        var(--surface) 0%, var(--shallows) 22%, var(--mid) 46%, var(--deep) 70%, var(--abyss) 100%);
+    }
+    .column { width: min(calc(100% - 48px), 620px); margin: 0 auto; }
+    header { padding: 72px 0 40px; text-align: center; }
+    h1 { margin: 0; font-size: clamp(34px, 6vw, 48px); font-weight: 400; letter-spacing: .02em; line-height: 1.1; }
+    .wave { width: 72px; height: 1px; margin: 24px auto 0; background: var(--ink); opacity: .45; }
+    .poem { font-size: clamp(17px, 2.6vw, 20px); line-height: 1.6; text-align: center; text-wrap: pretty; }
+    .stanza { margin: 0; padding: 26px 0; }
+    .s1 { color: var(--ink); }
+    .s2 { color: #16303a; }
+    .s3 { color: var(--foam); }
+    .s4 { color: var(--light); padding-bottom: 36px; }
+    .s5 {
+      color: var(--glow); padding: 52px 0 96px; font-style: italic;
+      text-shadow: 0 0 28px #f3e9c955, 0 0 70px #f3e9c922;
+    }
+    .pager {
+      width: min(calc(100% - 48px), 620px); margin: 0 auto; padding: 0 0 44px;
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+      background: var(--abyss);
+    }
+    .pager .prev { justify-self: start; }
+    .pager .next { justify-self: end; }
+    .pager a {
+      font: 600 10px/1 "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .24em;
+      text-transform: uppercase; color: #8aa3ad; text-decoration: none; transition: color .4s ease;
+    }
+    .pager a:hover, .pager a:focus-visible { color: var(--light); outline: none; }
+    .pager a.prev::before { content: "← "; }
+    .pager a.next::after { content: " →"; }
+    @media (max-width: 600px) {
+      .column, .pager { width: calc(100% - 44px); }
+      header { padding-top: 56px; }
+      .stanza { padding: 20px 0; }
+      .s5 { padding: 40px 0 72px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .pager a { transition: none; } }
+    @media print { .pager { display: none; } }
+  </style>
+</head>
+<body>
+  <main class="sea">
+    <div class="column">
+      <header>
+        <h1>The Abyss</h1>
+        <div class="wave" aria-hidden="true"></div>
+      </header>
+      <div class="poem">
+        <p class="stanza s1">Born into an ocean of suffering.<br>
+          Tossed by the tidewaters of nescience.</p>
+        <p class="stanza s2">Conformity — the only lifeboat in sight.<br>
+          A mighty rock tumbled into a mediocre pebble.</p>
+        <p class="stanza s3">Some cling to the surface,<br>
+          blindsided by the cliff of annihilation.<br>
+          Some venture deeper, unafraid of the abyss.</p>
+        <p class="stanza s4">Those wise souls find comfort in the void.<br>
+          Pleasure in its silence.<br>
+          Indifferent to darkness,<br>
+          they discover bliss from within.</p>
+        <p class="stanza s5">May their love illuminate the depths in us all.</p>
+      </div>
+    </div>
+  </main>
+  <nav class="pager">
+    <a class="prev" href="false-treasure.html" rel="prev">Back</a>
+    <a class="home" href="../index.html">Home</a>
+    <span class="next"></span>
+  </nav>
+</body>
+</html>
